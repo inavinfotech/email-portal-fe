@@ -13,7 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/email">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
