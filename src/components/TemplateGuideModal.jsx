@@ -101,6 +101,9 @@ const TemplateGuideModal = ({ isOpen, onClose }) => {
               <pre className="text-gray-200 mt-1">{`{
   "template_slug": "welcome-email",
   "to_email": "john@example.com",
+  "to_name": "John Doe",
+  "cc": "manager@example.com",
+  "bcc": "audit@example.com",
   "variables": {
     "user_name": "John Doe",
     "app_name": "Store App",

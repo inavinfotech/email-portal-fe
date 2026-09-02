@@ -85,7 +85,7 @@ const Logs = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search recipient, API key, or app..."
+            placeholder="Search recipient, CC, BCC, app..."
             className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </form>
@@ -138,11 +138,25 @@ const Logs = () => {
                     </td>
 
                     <td className="px-5 py-3.5 font-semibold text-gray-900">
-                      {log.recipient_email}
+                      <div>{log.recipient_email}</div>
                       {log.recipient_name && (
                         <span className="block text-xs text-gray-400 font-normal">
                           {log.recipient_name}
                         </span>
+                      )}
+                      {(log.cc || log.bcc) && (
+                        <div className="flex items-center space-x-1.5 mt-1">
+                          {log.cc && (
+                            <span className="inline-block text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.2 rounded font-medium" title={`CC: ${log.cc}`}>
+                              CC
+                            </span>
+                          )}
+                          {log.bcc && (
+                            <span className="inline-block text-[10px] bg-purple-50 text-purple-700 border border-purple-100 px-1.5 py-0.2 rounded font-medium" title={`BCC: ${log.bcc}`}>
+                              BCC
+                            </span>
+                          )}
+                        </div>
                       )}
                     </td>
 
@@ -218,9 +232,23 @@ const Logs = () => {
               </div>
 
               <div>
-                <span className="text-gray-400 font-bold uppercase block">Recipient:</span>
-                <span className="font-semibold text-gray-900">{selectedLog.recipient_email} ({selectedLog.recipient_name || "N/A"})</span>
+                <span className="text-gray-400 font-bold uppercase block">Recipient (To):</span>
+                <span className="font-semibold text-gray-900">{selectedLog.recipient_email} {selectedLog.recipient_name ? `(${selectedLog.recipient_name})` : ""}</span>
               </div>
+
+              {selectedLog.cc && (
+                <div className="bg-blue-50/50 border border-blue-100 p-2.5 rounded-xl">
+                  <span className="text-blue-700 font-bold uppercase text-[10px] block">CC (Carbon Copy):</span>
+                  <span className="font-mono text-xs text-blue-900 break-all">{selectedLog.cc}</span>
+                </div>
+              )}
+
+              {selectedLog.bcc && (
+                <div className="bg-purple-50/50 border border-purple-100 p-2.5 rounded-xl">
+                  <span className="text-purple-700 font-bold uppercase text-[10px] block">BCC (Blind Carbon Copy):</span>
+                  <span className="font-mono text-xs text-purple-900 break-all">{selectedLog.bcc}</span>
+                </div>
+              )}
 
               <div>
                 <span className="text-gray-400 font-bold uppercase block">Subject:</span>

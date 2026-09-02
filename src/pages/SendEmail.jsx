@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Send, FileCode2, Code2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, FileCode2, Code2, CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
 import { templatesAPI, sendAPI } from "../services/api";
 
 const SendEmail = () => {
@@ -10,6 +10,11 @@ const SendEmail = () => {
 
   const [toEmail, setToEmail] = useState("");
   const [toName, setToName] = useState("");
+  const [ccEmail, setCcEmail] = useState("");
+  const [bccEmail, setBccEmail] = useState("");
+  const [showCc, setShowCc] = useState(false);
+  const [showBcc, setShowBcc] = useState(false);
+
   const [subject, setSubject] = useState("");
   const [rawHtml, setRawHtml] = useState("<h1>Hello from SVARP Email Portal</h1>");
   const [variables, setVariables] = useState({});
@@ -69,12 +74,16 @@ const SendEmail = () => {
           template_slug: selectedSlug,
           to_email: toEmail.trim(),
           to_name: toName.trim() || undefined,
+          cc: ccEmail.trim() || undefined,
+          bcc: bccEmail.trim() || undefined,
           variables,
         });
       } else {
         res = await sendAPI.sendRaw({
           to_email: toEmail.trim(),
           to_name: toName.trim() || undefined,
+          cc: ccEmail.trim() || undefined,
+          bcc: bccEmail.trim() || undefined,
           subject: subject.trim() || "Test Email",
           html_body: rawHtml,
         });
@@ -92,7 +101,7 @@ const SendEmail = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Send Email</h1>
         <p className="text-sm text-gray-500 font-medium mt-1">
-          Dispatch test emails via template or raw HTML using Hostinger SMTP
+          Dispatch test emails via template or raw HTML with full CC and BCC recipient support
         </p>
       </div>
 
@@ -124,33 +133,126 @@ const SendEmail = () => {
 
       {/* Form Card */}
       <form onSubmit={handleSend} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-              Recipient Email Address *
-            </label>
-            <input
-              type="email"
-              value={toEmail}
-              onChange={(e) => setToEmail(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="user@example.com"
-              required
-            />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  Recipient Email Address *
+                </label>
+                <div className="flex items-center space-x-2">
+                  {!showCc && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCc(true)}
+                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-md transition-colors flex items-center space-x-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>CC</span>
+                    </button>
+                  )}
+                  {!showBcc && (
+                    <button
+                      type="button"
+                      onClick={() => setShowBcc(true)}
+                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-md transition-colors flex items-center space-x-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>BCC</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="email"
+                value={toEmail}
+                onChange={(e) => setToEmail(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="user@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
+                Recipient Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={toName}
+                onChange={(e) => setToName(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="John Doe"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
-              Recipient Name (Optional)
-            </label>
-            <input
-              type="text"
-              value={toName}
-              onChange={(e) => setToName(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="John Doe"
-            />
-          </div>
+          {/* CC & BCC Fields */}
+          {(showCc || showBcc) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+              {showCc && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      CC (Carbon Copy)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCc(false);
+                        setCcEmail("");
+                      }}
+                      className="text-[10px] text-gray-400 hover:text-rose-600 transition-colors flex items-center space-x-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={ccEmail}
+                    onChange={(e) => setCcEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="cc1@example.com, cc2@example.com"
+                  />
+                  <span className="text-[10px] text-gray-400 mt-1 block">
+                    Comma-separated email addresses
+                  </span>
+                </div>
+              )}
+
+              {showBcc && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      BCC (Blind Carbon Copy)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowBcc(false);
+                        setBccEmail("");
+                      }}
+                      className="text-[10px] text-gray-400 hover:text-rose-600 transition-colors flex items-center space-x-0.5"
+                    >
+                      <X className="w-3 h-3" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={bccEmail}
+                    onChange={(e) => setBccEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    placeholder="bcc1@example.com, bcc2@example.com"
+                  />
+                  <span className="text-[10px] text-gray-400 mt-1 block">
+                    Hidden from other recipients (comma-separated)
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {mode === "template" ? (
